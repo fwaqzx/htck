@@ -1,24 +1,225 @@
-<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>合肥白蚁防治登记系统 - 后台管理</title>
+    <!-- 添加Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-container {
-            max-width: 1400px; /* 稍微增加最大宽度以适应更多列 */
-            margin: 0 auto;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a3a8f 0%, #2c5aa0 50%, #3a7bd5 100%);
+            min-height: 100vh;
             padding: 20px;
+            color: #333;
+        }
+        
+        .admin-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 登录界面样式 */
+        #loginSection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         
         .login-form {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 30px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 40px 35px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .login-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a3a8f, #3a7bd5, #1a3a8f);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .login-header h2 {
+            color: #1a3a8f;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a3a8f, #3a7bd5);
+            border-radius: 50%;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(26, 58, 143, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+            font-size: 14px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1a3a8f;
+            font-size: 18px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9fbfd;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.15);
+            background: white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1a3a8f, #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(26, 58, 143, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26, 58, 143, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+            color: #777;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .message.error {
+            background: #ffeaea;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .message.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .government-stamp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+        
+        .stamp-circle {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #1a3a8f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a3a8f;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.2;
+            padding: 5px;
+        }
+        
+        /* 数据管理界面样式 */
+        #dataSection {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-top: 20px;
+            min-height: 80vh;
         }
         
         .data-table {
@@ -29,58 +230,65 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             border-radius: 8px;
             overflow: hidden;
-            table-layout: auto; /* 改为auto以适应内容 */
+            table-layout: auto;
         }
         
         .data-table th, .data-table td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
-            white-space: nowrap; /* 防止文本换行 */
+            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* 超出显示省略号 */
-            max-width: 200px; /* 限制最大宽度 */
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
         
         /* 为各列设置不同宽度 */
-        .data-table th:nth-child(1), /* ID列 */
+        .data-table th:nth-child(1),
         .data-table td:nth-child(1) {
-            width: 60px; /* ID列较窄 */
+            width: 60px;
         }
         
-        .data-table th:nth-child(2), /* 区域列 */
+        .data-table th:nth-child(2),
         .data-table td:nth-child(2) {
             width: 80px;
         }
         
-        .data-table th:nth-child(3), /* 道路列 */
+        .data-table th:nth-child(3),
         .data-table td:nth-child(3) {
             width: 120px;
         }
         
-        .data-table th:nth-child(4), /* 小区列 */
+        .data-table th:nth-child(4),
         .data-table td:nth-child(4) {
             width: 150px;
         }
         
-        .data-table th:nth-child(5), /* 姓名列 */
+        .data-table th:nth-child(5),
         .data-table td:nth-child(5) {
             width: 80px;
         }
         
-        .data-table th:nth-child(6), /* 电话列 */
+        .data-table th:nth-child(6),
         .data-table td:nth-child(6) {
             width: 120px;
         }
         
-        .data-table th:nth-child(7), /* 危害部位列 - 新增 */
+        .data-table th:nth-child(7),
         .data-table td:nth-child(7) {
             width: 120px;
         }
         
-        .data-table th:nth-child(8), /* 登记时间列 */
+        .data-table th:nth-child(8),
         .data-table td:nth-child(8) {
             width: 150px;
+        }
+        
+        /* 操作列样式 */
+        .data-table th:nth-child(9),
+        .data-table td:nth-child(9) {
+            width: 100px;
+            text-align: center;
         }
         
         .data-table th {
@@ -88,11 +296,31 @@
             color: white;
             font-weight: bold;
             position: sticky;
-            top: 0; /* 固定表头 */
+            top: 0;
         }
         
         .data-table tr:hover {
             background-color: #f8f9fa;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .delete-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
         }
         
         .logout-btn {
@@ -116,12 +344,12 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            flex-wrap: wrap; /* 小屏幕时换行 */
+            flex-wrap: wrap;
         }
         
         .search-box input {
             flex: 1;
-            min-width: 200px; /* 最小宽度 */
+            min-width: 200px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -152,9 +380,31 @@
         /* 添加表格容器，使其可以水平滚动 */
         .table-container {
             width: 100%;
-            overflow-x: auto; /* 水平滚动 */
+            overflow-x: auto;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 操作状态提示 */
+        .operation-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .operation-status.success {
+            background: #28a745;
+        }
+        
+        .operation-status.error {
+            background: #dc3545;
         }
         
         /* 响应式设计 */
@@ -183,29 +433,106 @@
                 margin-bottom: 10px;
                 width: 100%;
             }
+            
+            .login-form {
+                padding: 30px 25px;
+            }
+            
+            .login-header h2 {
+                font-size: 22px;
+            }
+            
+            .header-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .operation-status {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            #dataSection {
+                padding: 15px;
+            }
         }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // 替换为您的实际Supabase项目配置
+        const SUPABASE_URL = 'https://gzaplxeswmvqclsuhofn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6YXBseGVzd212cWNsc3Vob2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzODI2MjYsImV4cCI6MjA3NTk1ODYyNn0.LDvreiNKtaXOPI6MFg8CFXhS8vqQehBLdCWMCnrIQjY';
+        
+        // 初始化Supabase客户端
+        try {
+            window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase客户端初始化成功');
+        } catch (error) {
+            console.error('Supabase客户端初始化失败:', error);
+        }
+    </script>
 </head>
 <body>
+    <!-- 操作状态提示 -->
+    <div id="operationStatus" class="operation-status"></div>
+    
     <div class="admin-container">
-        <div id="loginSection" class="login-form">
-            <h2 style="text-align: center; margin-bottom: 20px;">白蚁防治后台管理系统登录</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">用户名</label>
-                    <input type="text" id="username" required>
+        <!-- 登录界面 -->
+        <div id="loginSection">
+            <div class="login-form">
+                <div class="login-header">
+                    <div class="header-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h2>白蚁防治管理系统</h2>
+                    <p>合肥市白蚁防治研究所 · 后台管理平台</p>
                 </div>
-                <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" id="password" required>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" placeholder="请输入管理员账号" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="请输入登录密码" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">登录系统</button>
+                </form>
+                
+                <div id="loginMessage" class="message"></div>
+                
+                <div class="login-footer">
+                    <p>© 2023 合肥市白蚁防治研究所 版权所有</p>
+                    <p>政务信息系统 | 仅供内部使用</p>
                 </div>
-                <button type="submit" class="submit-btn">登录</button>
-            </form>
-            <div id="loginMessage" class="message" style="margin-top: 15px;"></div>
+                
+                <div class="government-stamp">
+                    <div class="stamp-circle">
+                        政务系统<br>内部使用
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div id="dataSection" style="display: none;">
+        <!-- 数据管理界面 -->
+        <div id="dataSection">
             <button id="logoutBtn" class="logout-btn">退出登录</button>
             <h2>登记信息管理</h2>
             
@@ -215,29 +542,38 @@
                 <button id="resetBtn">重置</button>
             </div>
             
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>区域</th>
-                        <th>道路</th>
-                        <th>小区</th>
-                        <th>姓名</th>
-                        <th>电话</th>
-						<th>危害部位</th> <!-- 新增列 -->
-                        <th>登记时间</th>
-                    </tr>
-                </thead>
-                <tbody id="dataBody">
-                    <!-- 数据将通过JavaScript动态填充 -->
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>区域</th>
+                            <th>道路</th>
+                            <th>小区</th>
+                            <th>姓名</th>
+                            <th>电话</th>
+                            <th>危害部位</th>
+                            <th>登记时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        <!-- 数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script src="js/supabase.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // 检查Supabase客户端是否初始化成功
+            if (typeof window.supabaseClient === 'undefined') {
+                console.error('Supabase客户端未正确初始化');
+                showLoginMessage('系统初始化失败，请刷新页面重试', 'error');
+                return;
+            }
+
             const loginForm = document.getElementById('loginForm');
             const loginSection = document.getElementById('loginSection');
             const dataSection = document.getElementById('dataSection');
@@ -247,6 +583,7 @@
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
             const resetBtn = document.getElementById('resetBtn');
+            const operationStatus = document.getElementById('operationStatus');
             
             // 检查是否已登录
             if (localStorage.getItem('adminLoggedIn') === 'true') {
@@ -261,7 +598,7 @@
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 
-                // 简单的用户名密码验证（实际应用中应使用更安全的方式）
+                // 简单的用户名密码验证
                 if (username === 'admin' && password === 'fcj123') {
                     localStorage.setItem('adminLoggedIn', 'true');
                     showDataSection();
@@ -289,8 +626,16 @@
                 loadData();
             });
             
+            // 按回车键搜索
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.trim();
+                    loadData(searchTerm);
+                }
+            });
+            
             function showLoginSection() {
-                loginSection.style.display = 'block';
+                loginSection.style.display = 'flex';
                 dataSection.style.display = 'none';
             }
             
@@ -309,8 +654,22 @@
                 }, 3000);
             }
             
+            // 显示操作状态提示
+            function showOperationStatus(text, type) {
+                operationStatus.textContent = text;
+                operationStatus.className = 'operation-status ' + type;
+                operationStatus.style.display = 'block';
+                
+                setTimeout(() => {
+                    operationStatus.style.display = 'none';
+                }, 3000);
+            }
+            
             async function loadData(searchTerm = '') {
                 try {
+                    // 显示加载状态
+                    dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">加载中...</td></tr>';
+                    
                     let query = window.supabaseClient
                         .from('registrations')
                         .select('*')
@@ -341,25 +700,75 @@
                             
                             row.innerHTML = `
                                 <td>${item.id}</td>
-                                <td>${item.region}</td>
-                                <td>${item.road}</td>
-                                <td>${item.community}</td>
-                                <td>${item.name}</td>
-                                <td>${item.phone}</td>
-								<td>${item.damage_part || ''}</td> <!-- 新增 -->
+                                <td>${item.region || ''}</td>
+                                <td>${item.road || ''}</td>
+                                <td>${item.community || ''}</td>
+                                <td>${item.name || ''}</td>
+                                <td>${item.phone || ''}</td>
+                                <td>${item.damage_part || ''}</td>
                                 <td>${formattedDate}</td>
+                                <td>
+                                    <button class="delete-btn" data-id="${item.id}" data-name="${item.name || ''}">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                </td>
                             `;
                             
                             dataBody.appendChild(row);
                         });
+                        
+                        // 为所有删除按钮添加事件监听
+                        document.querySelectorAll('.delete-btn').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const name = this.getAttribute('data-name');
+                                deleteRecord(id, name, this);
+                            });
+                        });
                     } else {
                         const row = document.createElement('tr');
-                        row.innerHTML = `<td colspan="7" style="text-align: center;">暂无数据</td>`;
+                        row.innerHTML = `<td colspan="9" style="text-align: center;">暂无数据</td>`;
                         dataBody.appendChild(row);
                     }
                 } catch (error) {
                     console.error('加载数据错误:', error);
-                    alert('加载数据失败: ' + error.message);
+                    dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">数据加载失败: ' + error.message + '</td></tr>';
+                }
+            }
+            
+            // 删除记录函数
+            async function deleteRecord(id, name, buttonElement) {
+                const recordInfo = name ? ` (${name})` : '';
+                if (!confirm(`确定要删除ID为 ${id}${recordInfo} 的记录吗？此操作不可恢复。`)) {
+                    return;
+                }
+                
+                try {
+                    // 禁用按钮防止重复点击
+                    buttonElement.disabled = true;
+                    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 删除中';
+                    
+                    const { data, error } = await window.supabaseClient
+                        .from('registrations')
+                        .delete()
+                        .eq('id', id);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // 显示成功提示
+                    showOperationStatus('记录删除成功！', 'success');
+                    
+                    // 重新加载数据
+                    loadData(searchInput.value.trim());
+                } catch (error) {
+                    console.error('删除记录错误:', error);
+                    showOperationStatus('删除失败: ' + error.message, 'error');
+                    
+                    // 恢复按钮状态
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = '<i class="fas fa-trash"></i> 删除';
                 }
             }
         });
