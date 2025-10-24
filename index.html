@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合肥白蚁防治登记系统 - 后台管理</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px; /* 稍微增加最大宽度以适应更多列 */
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            table-layout: auto; /* 改为auto以适应内容 */
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            white-space: nowrap; /* 防止文本换行 */
+            overflow: hidden;
+            text-overflow: ellipsis; /* 超出显示省略号 */
+            max-width: 200px; /* 限制最大宽度 */
+        }
+        
+        /* 为各列设置不同宽度 */
+        .data-table th:nth-child(1), /* ID列 */
+        .data-table td:nth-child(1) {
+            width: 60px; /* ID列较窄 */
+        }
+        
+        .data-table th:nth-child(2), /* 区域列 */
+        .data-table td:nth-child(2) {
+            width: 80px;
+        }
+        
+        .data-table th:nth-child(3), /* 道路列 */
+        .data-table td:nth-child(3) {
+            width: 120px;
+        }
+        
+        .data-table th:nth-child(4), /* 小区列 */
+        .data-table td:nth-child(4) {
+            width: 150px;
+        }
+        
+        .data-table th:nth-child(5), /* 姓名列 */
+        .data-table td:nth-child(5) {
+            width: 80px;
+        }
+        
+        .data-table th:nth-child(6), /* 电话列 */
+        .data-table td:nth-child(6) {
+            width: 120px;
+        }
+        
+        .data-table th:nth-child(7), /* 危害部位列 - 新增 */
+        .data-table td:nth-child(7) {
+            width: 120px;
+        }
+        
+        .data-table th:nth-child(8), /* 登记时间列 */
+        .data-table td:nth-child(8) {
+            width: 150px;
+        }
+        
+        .data-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0; /* 固定表头 */
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+            margin-bottom: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap; /* 小屏幕时换行 */
+        }
+        
+        .search-box input {
+            flex: 1;
+            min-width: 200px; /* 最小宽度 */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .search-box button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .search-box button:hover {
+            background: #0056b3;
+        }
+        
+        /* 添加表格容器，使其可以水平滚动 */
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* 水平滚动 */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box input {
+                min-width: 100%;
+            }
+            
+            .logout-btn {
+                float: none;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <div id="loginSection" class="login-form">
+            <h2 style="text-align: center; margin-bottom: 20px;">白蚁防治后台管理系统登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="submit-btn">登录</button>
+            </form>
+            <div id="loginMessage" class="message" style="margin-top: 15px;"></div>
+        </div>
+        
+        <div id="dataSection" style="display: none;">
+            <button id="logoutBtn" class="logout-btn">退出登录</button>
+            <h2>登记信息管理</h2>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索姓名、电话或小区...">
+                <button id="searchBtn">搜索</button>
+                <button id="resetBtn">重置</button>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>区域</th>
+                        <th>道路</th>
+                        <th>小区</th>
+                        <th>姓名</th>
+                        <th>电话</th>
+						<th>危害部位</th> <!-- 新增列 -->
+                        <th>登记时间</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody">
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginSection = document.getElementById('loginSection');
+            const dataSection = document.getElementById('dataSection');
+            const loginMessage = document.getElementById('loginMessage');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const dataBody = document.getElementById('dataBody');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // 检查是否已登录
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                showDataSection();
+                loadData();
+            }
+            
+            // 登录表单提交
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // 简单的用户名密码验证（实际应用中应使用更安全的方式）
+                if (username === 'admin' && password === 'fcj123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    showDataSection();
+                    loadData();
+                } else {
+                    showLoginMessage('用户名或密码错误', 'error');
+                }
+            });
+            
+            // 退出登录
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('adminLoggedIn');
+                showLoginSection();
+            });
+            
+            // 搜索功能
+            searchBtn.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim();
+                loadData(searchTerm);
+            });
+            
+            // 重置搜索
+            resetBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                loadData();
+            });
+            
+            function showLoginSection() {
+                loginSection.style.display = 'block';
+                dataSection.style.display = 'none';
+            }
+            
+            function showDataSection() {
+                loginSection.style.display = 'none';
+                dataSection.style.display = 'block';
+            }
+            
+            function showLoginMessage(text, type) {
+                loginMessage.textContent = text;
+                loginMessage.className = 'message ' + type;
+                loginMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    loginMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            async function loadData(searchTerm = '') {
+                try {
+                    let query = window.supabaseClient
+                        .from('registrations')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    
+                    // 如果有搜索词，添加搜索条件
+                    if (searchTerm) {
+                        query = query.or(`name.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,community.ilike.%${searchTerm}%,damage_part.ilike.%${searchTerm}%`);
+                    }
+                    
+                    const { data, error } = await query;
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // 清空表格
+                    dataBody.innerHTML = '';
+                    
+                    // 填充数据
+                    if (data && data.length > 0) {
+                        data.forEach(item => {
+                            const row = document.createElement('tr');
+                            
+                            // 格式化日期
+                            const date = new Date(item.created_at);
+                            const formattedDate = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                            
+                            row.innerHTML = `
+                                <td>${item.id}</td>
+                                <td>${item.region}</td>
+                                <td>${item.road}</td>
+                                <td>${item.community}</td>
+                                <td>${item.name}</td>
+                                <td>${item.phone}</td>
+								<td>${item.damage_part || ''}</td> <!-- 新增 -->
+                                <td>${formattedDate}</td>
+                            `;
+                            
+                            dataBody.appendChild(row);
+                        });
+                    } else {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td colspan="7" style="text-align: center;">暂无数据</td>`;
+                        dataBody.appendChild(row);
+                    }
+                } catch (error) {
+                    console.error('加载数据错误:', error);
+                    alert('加载数据失败: ' + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
