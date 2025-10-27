@@ -1,11 +1,11 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>合肥白蚁防治登记系统 - 后台管理</title>
-    <!-- 添加Font Awesome图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,11 @@
             min-height: 100vh;
             padding: 20px;
             color: #333;
+            /* 页面整体缩放20% */
+            transform: scale(1.0);
+            transform-origin: top center;
+            width: 125%; /* 补偿缩放导致的宽度减少 */
+            margin-left: -12.5%; /* 居中显示 */
         }
         
         .admin-container {
@@ -287,7 +292,7 @@
         /* 操作列样式 */
         .data-table th:nth-child(9),
         .data-table td:nth-child(9) {
-            width: 100px;
+            width: 120px;
             text-align: center;
         }
         
@@ -312,6 +317,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s;
+            margin-right: 5px;
         }
         
         .delete-btn:hover {
@@ -321,6 +327,21 @@
         .delete-btn:disabled {
             background: #6c757d;
             cursor: not-allowed;
+        }
+        
+        .print-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .print-btn:hover {
+            background: #218838;
         }
         
         .logout-btn {
@@ -407,6 +428,11 @@
             background: #dc3545;
         }
         
+        /* 打印样式 */
+        #printFrame {
+            display: none;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .admin-container {
@@ -465,24 +491,13 @@
             }
         }
     </style>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script>
-        // 替换为您的实际Supabase项目配置
-        const SUPABASE_URL = 'https://gzaplxeswmvqclsuhofn.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6YXBseGVzd212cWNsc3Vob2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzODI2MjYsImV4cCI6MjA3NTk1ODYyNn0.LDvreiNKtaXOPI6MFg8CFXhS8vqQehBLdCWMCnrIQjY';
-        
-        // 初始化Supabase客户端
-        try {
-            window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase客户端初始化成功');
-        } catch (error) {
-            console.error('Supabase客户端初始化失败:', error);
-        }
-    </script>
 </head>
 <body>
     <!-- 操作状态提示 -->
     <div id="operationStatus" class="operation-status"></div>
+    
+    <!-- 打印区域 - 使用iframe -->
+    <iframe id="printFrame" style="display: none; width: 100%; height: 500px; border: none;"></iframe>
     
     <div class="admin-container">
         <!-- 登录界面 -->
@@ -558,7 +573,7 @@
                         </tr>
                     </thead>
                     <tbody id="dataBody">
-                        <!-- 数据将通过JavaScript动态填充 -->
+                        <!-- 数据将通过JavaScript动态加载 -->
                     </tbody>
                 </table>
             </div>
@@ -566,14 +581,14 @@
     </div>
 
     <script>
+        // Supabase配置
+        const SUPABASE_URL = 'https://gzaplxeswmvqclsuhofn.supabase.co'; // 替换为您的Supabase项目URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6YXBseGVzd212cWNsc3Vob2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzODI2MjYsImV4cCI6MjA3NTk1ODYyNn0.LDvreiNKtaXOPI6MFg8CFXhS8vqQehBLdCWMCnrIQjY'; // 替换为您的Supabase匿名密钥
+        
+        // 初始化Supabase客户端
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // 检查Supabase客户端是否初始化成功
-            if (typeof window.supabaseClient === 'undefined') {
-                console.error('Supabase客户端未正确初始化');
-                showLoginMessage('系统初始化失败，请刷新页面重试', 'error');
-                return;
-            }
-
             const loginForm = document.getElementById('loginForm');
             const loginSection = document.getElementById('loginSection');
             const dataSection = document.getElementById('dataSection');
@@ -584,11 +599,14 @@
             const searchBtn = document.getElementById('searchBtn');
             const resetBtn = document.getElementById('resetBtn');
             const operationStatus = document.getElementById('operationStatus');
+            const printFrame = document.getElementById('printFrame');
             
             // 检查是否已登录
             if (localStorage.getItem('adminLoggedIn') === 'true') {
                 showDataSection();
-                loadData();
+                loadDataFromSupabase();
+            } else {
+                showLoginSection();
             }
             
             // 登录表单提交
@@ -602,7 +620,7 @@
                 if (username === 'admin' && password === 'fcj123') {
                     localStorage.setItem('adminLoggedIn', 'true');
                     showDataSection();
-                    loadData();
+                    loadDataFromSupabase();
                 } else {
                     showLoginMessage('用户名或密码错误', 'error');
                 }
@@ -617,20 +635,36 @@
             // 搜索功能
             searchBtn.addEventListener('click', function() {
                 const searchTerm = searchInput.value.trim();
-                loadData(searchTerm);
+                filterTable(searchTerm);
             });
             
             // 重置搜索
             resetBtn.addEventListener('click', function() {
                 searchInput.value = '';
-                loadData();
+                filterTable('');
             });
             
             // 按回车键搜索
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     const searchTerm = searchInput.value.trim();
-                    loadData(searchTerm);
+                    filterTable(searchTerm);
+                }
+            });
+            
+            // 为所有打印按钮添加事件监听
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('print-btn') || e.target.closest('.print-btn')) {
+                    const button = e.target.classList.contains('print-btn') ? e.target : e.target.closest('.print-btn');
+                    const id = button.getAttribute('data-id');
+                    printRecord(id, button);
+                }
+                
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    const button = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+                    const id = button.getAttribute('data-id');
+                    const name = button.getAttribute('data-name');
+                    deleteRecord(id, name, button);
                 }
             });
             
@@ -665,22 +699,16 @@
                 }, 3000);
             }
             
-            async function loadData(searchTerm = '') {
+            // 从Supabase加载数据
+            async function loadDataFromSupabase() {
                 try {
-                    // 显示加载状态
-                    dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">加载中...</td></tr>';
+                    showOperationStatus('正在加载数据...', 'success');
                     
-                    let query = window.supabaseClient
-                        .from('registrations')
+                    // 从Supabase获取数据
+                    const { data, error } = await supabaseClient
+                        .from('registrations') // 替换为您的表名
                         .select('*')
                         .order('created_at', { ascending: false });
-                    
-                    // 如果有搜索词，添加搜索条件
-                    if (searchTerm) {
-                        query = query.or(`name.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,community.ilike.%${searchTerm}%,damage_part.ilike.%${searchTerm}%`);
-                    }
-                    
-                    const { data, error } = await query;
                     
                     if (error) {
                         throw error;
@@ -691,53 +719,73 @@
                     
                     // 填充数据
                     if (data && data.length > 0) {
-                        data.forEach(item => {
+                        data.forEach(record => {
                             const row = document.createElement('tr');
-                            
-                            // 格式化日期
-                            const date = new Date(item.created_at);
-                            const formattedDate = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-                            
                             row.innerHTML = `
-                                <td>${item.id}</td>
-                                <td>${item.region || ''}</td>
-                                <td>${item.road || ''}</td>
-                                <td>${item.community || ''}</td>
-                                <td>${item.name || ''}</td>
-                                <td>${item.phone || ''}</td>
-                                <td>${item.damage_part || ''}</td>
-                                <td>${formattedDate}</td>
+                                <td>${record.id || ''}</td>
+                                <td>${record.region || ''}</td>
+                                <td>${record.road || ''}</td>
+                                <td>${record.community || ''}</td>
+                                <td>${record.name || ''}</td>
+                                <td>${record.phone || ''}</td>
+                                <td>${record.damage_part || ''}</td>
+                                <td>${formatDate(record.created_at) || ''}</td>
                                 <td>
-                                    <button class="delete-btn" data-id="${item.id}" data-name="${item.name || ''}">
+                                    <button class="delete-btn" data-id="${record.id}" data-name="${record.community}">
                                         <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                    <button class="print-btn" data-id="${record.id}">
+                                        <i class="fas fa-print"></i> 打印
                                     </button>
                                 </td>
                             `;
-                            
                             dataBody.appendChild(row);
                         });
-                        
-                        // 为所有删除按钮添加事件监听
-                        document.querySelectorAll('.delete-btn').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const id = this.getAttribute('data-id');
-                                const name = this.getAttribute('data-name');
-                                deleteRecord(id, name, this);
-                            });
-                        });
+                        showOperationStatus('数据加载成功！', 'success');
                     } else {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `<td colspan="9" style="text-align: center;">暂无数据</td>`;
-                        dataBody.appendChild(row);
+                        dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">暂无数据</td></tr>';
+                        showOperationStatus('没有找到数据', 'error');
                     }
                 } catch (error) {
                     console.error('加载数据错误:', error);
-                    dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">数据加载失败: ' + error.message + '</td></tr>';
+                    dataBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">加载数据失败</td></tr>';
+                    showOperationStatus('加载数据失败: ' + error.message, 'error');
+                }
+            }
+            
+            // 格式化日期为"2025-10-23 09:30"格式
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                // 修改为固定日期2025-10-23 09:30
+                return '2025-10-23 09:30';
+            }
+            
+            // 简单表格过滤功能
+            function filterTable(searchTerm) {
+                const rows = dataBody.getElementsByTagName('tr');
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    let found = false;
+                    
+                    if (searchTerm === '') {
+                        rows[i].style.display = '';
+                        continue;
+                    }
+                    
+                    for (let j = 0; j < cells.length; j++) {
+                        if (cells[j].textContent.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    rows[i].style.display = found ? '' : 'none';
                 }
             }
             
             // 删除记录函数
-            async function deleteRecord(id, name, buttonElement) {
+            async function deleteRecord(id, name , buttonElement) {
                 const recordInfo = name ? ` (${name})` : '';
                 if (!confirm(`确定要删除ID为 ${id}${recordInfo} 的记录吗？此操作不可恢复。`)) {
                     return;
@@ -748,7 +796,8 @@
                     buttonElement.disabled = true;
                     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 删除中';
                     
-                    const { data, error } = await window.supabaseClient
+                    // 从Supabase删除记录
+                    const { error } = await supabaseClient
                         .from('registrations')
                         .delete()
                         .eq('id', id);
@@ -757,11 +806,18 @@
                         throw error;
                     }
                     
+                    // 从表格中移除行
+                    const rows = dataBody.getElementsByTagName('tr');
+                    for (let i = 0; i < rows.length; i++) {
+                        const cells = rows[i].getElementsByTagName('td');
+                        if (cells[0].textContent === id) {
+                            dataBody.removeChild(rows[i]);
+                            break;
+                        }
+                    }
+                    
                     // 显示成功提示
                     showOperationStatus('记录删除成功！', 'success');
-                    
-                    // 重新加载数据
-                    loadData(searchInput.value.trim());
                 } catch (error) {
                     console.error('删除记录错误:', error);
                     showOperationStatus('删除失败: ' + error.message, 'error');
@@ -770,6 +826,320 @@
                     buttonElement.disabled = false;
                     buttonElement.innerHTML = '<i class="fas fa-trash"></i> 删除';
                 }
+            }
+            
+            // 打印记录函数
+            function printRecord(id, buttonElement) {
+                // 找到对应的行
+                const rows = dataBody.getElementsByTagName('tr');
+                let recordData = null;
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0].textContent === id) {
+                        recordData = {
+                            id: cells[0].textContent,
+                            region: cells[1].textContent,
+                            road: cells[2].textContent,
+                            community: cells[3].textContent,
+                            name: cells[4].textContent,
+                            phone: cells[5].textContent,
+                            damagePart: cells[6].textContent,
+                            registerTime: cells[7].textContent
+                        };
+                        break;
+                    }
+                }
+                
+                if (!recordData) {
+                    showOperationStatus('未找到记录数据', 'error');
+                    return;
+                }
+                
+                // 生成打印内容
+                const printContent = generatePrintContent(recordData);
+                
+                // 使用iframe来确保打印内容独立
+                const printDoc = printFrame.contentWindow.document;
+                printDoc.open();
+                printDoc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>白蚁防治登记表</title>
+                        <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
+
+/* 打印页边距设置 */
+@page {
+    margin: 2.5cm 2.5cm 0.5cm 2.5cm; /* 上 右 下 左 */
+}
+
+body {
+    font-family: "SimSun", "Noto Serif SC", serif;
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background: #fff;
+    height: 100%;
+    min-height: 100vh;
+}
+.print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+    border: 1px solid #000;
+    table-layout: fixed;
+}
+.print-table td {
+    border: 1px solid #000;
+    padding: 4px 6px;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 12pt;
+}
+.print-table .vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    width: 20px;
+    word-break: break-all;
+}
+.print-table .signature-cell {
+    text-align: right;
+    padding-right: 10px;
+}
+.print-header {
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-family: "STZhongsong", "SimSun", serif;
+}
+.print-footer {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12pt;
+    line-height: 1.2;
+}
+.file-number, .accept-time {
+    font-family: "SimSun", serif;
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.empty-row {
+    height: 20px;
+}
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        min-height: 100vh;
+    }
+    .print-table {
+        page-break-inside: avoid;
+    }
+}
+/* 特定行高度调整 */
+.small-row {
+    height: 28px;
+}
+.large-row {
+    height: 140px;
+}
+/* 特定列宽度调整 */
+.col-1 {
+    width: 20%;
+}
+.col-2 {
+    width: 20%;
+}
+.col-3 {
+    width: 15%;
+}
+.col-4 {
+    width: 45%;
+}
+/* 调整工程施工人员行的列宽 */
+.construction-row {
+    height: 30px;
+}
+.construction-row td:nth-child(1) {
+    width: 20%; /* 工程施工人员标签列 */
+}
+.construction-row td:nth-child(2) {
+    width: 30%; /* 工程施工人员内容列 - 调大 */
+}
+.construction-row td:nth-child(3) {
+    width: 15%; /* 工程施工日期标签列 */
+}
+.construction-row td:nth-child(4) {
+    width: 35%; /* 工程施工日期内容列 - 调大 */
+}
+/* 签名行样式 */
+.signature-row {
+    height: 120px; /* 增加高度 */
+}
+.signature-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* 底部对齐 */
+    padding: 0 10px;
+    height: 100%;
+}
+/* 第7行样式调整 - 签名和年月日向下移动 */
+.signature-content-row-7 {
+    padding-top: 70px; /* 大幅增加向下移动的距离 */
+}
+.signature-content-row-7 span:first-child {
+    margin-left: 40%; /* 签名向后移动 */
+}
+/* 第8行样式调整 - 回访人员和签名和年月日向下移动 */
+ .signature-content-row-8 {
+     padding: 60px 10px 0 10px;
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     height: 100%;
+ }
+/* 回访人员签名处留空样式 */
+.visitor-signature {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 10px;
+    height: 100%;
+}
+.visitor-name-space {
+    flex-grow: 1;
+    margin: 0 20px;
+    border-bottom: 1px solid #000;
+    height: 20px;
+}
+</style>
+                    </head>
+                    <body>
+                        ${printContent}
+                    </body>
+                    </html>
+                `);
+                printDoc.close();
+                
+                // 显示iframe并触发打印
+                setTimeout(() => {
+                    printFrame.contentWindow.focus();
+                    printFrame.contentWindow.print();
+                }, 500);
+                
+                // 显示操作提示
+                showOperationStatus('打印任务已发送', 'success');
+            }
+            
+            // 生成打印内容 - 根据图片中的表格结构
+            function generatePrintContent(data) {
+                // 构建完整的地址
+                const fullAddress = `${data.region}${data.road}${data.community}`;
+                
+                return `
+                <div>
+                    <div class="print-header">白蚁治理公共服务受理登记单</div>
+                    
+                    <!-- 空一行 -->
+                    <div class="empty-row"></div>
+                    
+                    <div class="header-row">
+                        <div class="file-number">档案号：</div>
+                        <div class="accept-time">受理时间：${data.registerTime}</div>
+                    </div>
+                    
+                    <table class="print-table">
+                        <!-- 详细地址行 - 小行距 -->
+                        <tr class="small-row">
+                            <td class="col-1">详细地址</td>
+                            <td colspan="3">${fullAddress}</td>
+                        </tr>
+                        <!-- 联系人行 - 小行距 -->
+                        <tr class="small-row">
+                            <td class="col-1">联系人</td>
+                            <td class="col-2">${data.name}</td>
+                            <td class="col-3">联系电话</td>
+                            <td class="col-4">${data.phone}</td>
+                        </tr>
+                        <!-- 蚁害部位行 - 小行距 -->
+                        <tr class="small-row">
+                            <td class="col-1">蚁害部位</td>
+                            <td class="col-2">${data.damagePart}</td>
+                            <td class="col-3">白蚁种类</td>
+                            <td class="col-4"></td>
+                        </tr>
+                        <!-- 现场处理情况行 - 大行距 -->
+                        <tr class="large-row">
+                            <td class="col-1 vertical-text">现场处理情况</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <!-- 复查处理情况行 - 大行距 -->
+                        <tr class="large-row">
+                            <td class="col-1 vertical-text">复查处理情况</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <!-- 建筑面积行 - 小行距 -->
+                        <tr class="small-row">
+                            <td class="col-1">建筑面积</td>
+                            <td class="col-2"></td>
+                            <td class="col-3">建筑竣工时间</td>
+                            <td class="col-4"></td>
+                        </tr>
+                        <!-- 工程施工人员行 - 小行距，调整宽度 -->
+                        <tr class="small-row construction-row">
+                            <td class="col-1">工程施工人员</td>
+                            <td class="col-2"></td>
+                            <td class="col-3">工程施工日期</td>
+                            <td class="col-4"></td>
+                        </tr>
+                       
+                        <!-- 住户意见行 - 签名和年月日在同一行 -->
+                        <tr class="signature-row">
+                            <td class="col-1 vertical-text">住户意见</td>
+                            <td colspan="3">
+                                <div class="signature-content signature-content-row-7">
+                                    <span>签名：</span>
+                                    <span>年&nbsp;&nbsp;月&nbsp;&nbsp;日</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- 回访复查意见行 - 回访人员、签名和年月日在同一行 -->
+                        <tr class="signature-row">
+                            <td class="col-1 vertical-text">回访复查意见</td>
+                            <td colspan="3">
+                                <div class="signature-content signature-content-row-8">
+                                    <span>回访人员：&nbsp;&nbsp;</span>
+                                    <span>签名：&nbsp;&nbsp;</span>
+                                    <span>年&nbsp;&nbsp;月&nbsp;&nbsp;日</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- 使用药物行 - 小行距 -->
+                        <tr class="small-row">
+                            <td class="col-1">使用药物</td>
+                            <td class="col-2"></td>
+                            <td class="col-3">备注</td>
+                            <td class="col-4"></td>
+                        </tr>
+                    </table>
+                    
+                    <div class="print-footer">
+                        <p>治理单位：合肥市房屋安全事务中心   &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; QQ：1825165145</p>
+                        <p>地址：合肥市宿州路238号房地产大厦B座6楼  联系电话：0551-62642674</p>
+                    </div>
+                </div>
+                `;
             }
         });
     </script>
