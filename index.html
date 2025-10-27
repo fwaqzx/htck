@@ -14,23 +14,25 @@
             font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
         }
         
-        body {
-            background: linear-gradient(135deg, #1a3a8f 0%, #2c5aa0 50%, #3a7bd5 100%);
-            min-height: 100vh;
-            padding: 10px;
-            color: #333;
+        html, body {
+            height: 100%;
             width: 100%;
             overflow-x: hidden;
         }
         
-        .admin-container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            min-height: 100vh;
+        body {
+            background: #1a3a8f; /* 单一蓝色背景 */
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 10px;
+        }
+        
+        .admin-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
         }
         
         /* 登录界面样式 */
@@ -52,7 +54,6 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            max-width: 450px;
         }
         
         .login-form::before {
@@ -438,9 +439,12 @@
         
         /* 响应式设计 */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
             .admin-container {
                 padding: 5px;
-                align-items: flex-start;
             }
             
             .data-table th, 
