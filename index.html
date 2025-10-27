@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>合肥白蚁防治登记系统 - 后台管理</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,25 +14,23 @@
             font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
         }
         
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
         body {
-            background: #1a3a8f; /* 单一蓝色背景 */
+            background: linear-gradient(135deg, #1a3a8f 0%, #2c5aa0 50%, #3a7bd5 100%);
+            min-height: 100vh;
+            padding: 20px;
             color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
+            width: 100%;
+            overflow-x: auto;
         }
         
         .admin-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 1400px;
             margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* 登录界面样式 */
@@ -41,19 +39,20 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 10px;
+            padding: 20px;
         }
         
         .login-form {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            padding: 30px 25px;
+            padding: 40px 35px;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
+            max-width: 500px;
         }
         
         .login-form::before {
@@ -68,38 +67,38 @@
         
         .login-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             position: relative;
         }
         
         .login-header h2 {
             color: #1a3a8f;
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .login-header p {
             color: #666;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         .header-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             background: linear-gradient(135deg, #1a3a8f, #3a7bd5);
             border-radius: 50%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: white;
-            font-size: 20px;
+            font-size: 28px;
             box-shadow: 0 4px 10px rgba(26, 58, 143, 0.3);
         }
         
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             position: relative;
         }
         
@@ -108,7 +107,7 @@
             margin-bottom: 8px;
             font-weight: 500;
             color: #444;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         .input-with-icon {
@@ -121,12 +120,12 @@
             top: 50%;
             transform: translateY(-50%);
             color: #1a3a8f;
-            font-size: 16px;
+            font-size: 18px;
         }
         
         .form-group input {
             width: 100%;
-            padding: 12px 15px 12px 45px;
+            padding: 14px 15px 14px 50px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
@@ -143,12 +142,12 @@
         
         .submit-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: linear-gradient(135deg, #1a3a8f, #3a7bd5);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -167,19 +166,19 @@
         
         .login-footer {
             text-align: center;
-            margin-top: 20px;
-            padding-top: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
             border-top: 1px solid #eee;
-            font-size: 12px;
+            font-size: 14px;
             color: #777;
         }
         
         .message {
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             margin-top: 15px;
             text-align: center;
-            font-size: 14px;
+            font-size: 16px;
             display: none;
         }
         
@@ -199,13 +198,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 20px;
             opacity: 0.7;
         }
         
         .stamp-circle {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border: 3px solid #1a3a8f;
             border-radius: 50%;
             display: flex;
@@ -213,7 +212,7 @@
             justify-content: center;
             font-weight: bold;
             color: #1a3a8f;
-            font-size: 12px;
+            font-size: 14px;
             text-align: center;
             line-height: 1.2;
             padding: 5px;
@@ -225,10 +224,25 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            padding: 20px;
+            padding: 25px;
             width: 100%;
             min-height: 80vh;
             margin-top: 0;
+        }
+        
+        .data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .data-header h2 {
+            color: #1a3a8f;
+            font-size: 24px;
+            font-weight: 600;
         }
         
         .data-table {
@@ -240,64 +254,16 @@
             border-radius: 8px;
             overflow: hidden;
             table-layout: auto;
+            font-size: 16px;
         }
         
         .data-table th, .data-table td {
-            padding: 10px 12px;
+            padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
-        }
-        
-        /* 为各列设置不同宽度 */
-        .data-table th:nth-child(1),
-        .data-table td:nth-child(1) {
-            width: 50px;
-        }
-        
-        .data-table th:nth-child(2),
-        .data-table td:nth-child(2) {
-            width: 70px;
-        }
-        
-        .data-table th:nth-child(3),
-        .data-table td:nth-child(3) {
-            width: 100px;
-        }
-        
-        .data-table th:nth-child(4),
-        .data-table td:nth-child(4) {
-            width: 130px;
-        }
-        
-        .data-table th:nth-child(5),
-        .data-table td:nth-child(5) {
-            width: 70px;
-        }
-        
-        .data-table th:nth-child(6),
-        .data-table td:nth-child(6) {
-            width: 100px;
-        }
-        
-        .data-table th:nth-child(7),
-        .data-table td:nth-child(7) {
-            width: 100px;
-        }
-        
-        .data-table th:nth-child(8),
-        .data-table td:nth-child(8) {
-            width: 130px;
-        }
-        
-        /* 操作列样式 */
-        .data-table th:nth-child(9),
-        .data-table td:nth-child(9) {
-            width: 100px;
-            text-align: center;
         }
         
         .data-table th {
@@ -312,16 +278,24 @@
             background-color: #f8f9fa;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
         .delete-btn {
             background: #dc3545;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             transition: background-color 0.3s;
-            margin-right: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .delete-btn:hover {
@@ -337,11 +311,14 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .print-btn:hover {
@@ -352,12 +329,14 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 10px 18px;
             border-radius: 4px;
             cursor: pointer;
-            float: right;
-            margin-bottom: 15px;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
         }
         
         .logout-btn:hover {
@@ -365,20 +344,21 @@
         }
         
         .search-box {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
             flex-wrap: wrap;
         }
         
         .search-box input {
             flex: 1;
-            min-width: 150px;
-            padding: 8px 10px;
+            min-width: 200px;
+            padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             transition: border-color 0.3s;
+            font-size: 16px;
         }
         
         .search-box input:focus {
@@ -391,11 +371,15 @@
             background: #007bff;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 10px 16px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
             white-space: nowrap;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .search-box button:hover {
@@ -415,13 +399,14 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 12px 20px;
+            padding: 15px 25px;
             border-radius: 4px;
             color: white;
             font-weight: 500;
             z-index: 1000;
             display: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
         }
         
         .operation-status.success {
@@ -437,20 +422,67 @@
             display: none;
         }
         
-        /* 响应式设计 */
+        /* 响应式设计 - 移动设备 */
         @media (max-width: 768px) {
             body {
-                padding: 5px;
+                padding: 10px;
             }
             
             .admin-container {
                 padding: 5px;
+                align-items: flex-start;
+            }
+            
+            .login-form {
+                padding: 30px 25px;
+            }
+            
+            .login-header h2 {
+                font-size: 22px;
+            }
+            
+            .login-header p {
+                font-size: 14px;
+            }
+            
+            .header-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .form-group input {
+                padding: 12px 15px 12px 45px;
+                font-size: 16px;
+            }
+            
+            .input-with-icon i {
+                font-size: 16px;
+            }
+            
+            .submit-btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+            
+            .government-stamp {
+                margin-top: 15px;
+            }
+            
+            .stamp-circle {
+                width: 70px;
+                height: 70px;
+                font-size: 12px;
+            }
+            
+            #dataSection {
+                padding: 20px;
             }
             
             .data-table th, 
             .data-table td {
-                padding: 8px 10px;
-                font-size: 0.9rem;
+                padding: 10px 12px;
+                font-size: 14px;
             }
             
             .search-box {
@@ -463,75 +495,35 @@
             }
             
             .logout-btn {
-                float: none;
-                margin-bottom: 10px;
-                width: 100%;
+                padding: 8px 15px;
+                font-size: 14px;
             }
             
-            .login-form {
-                padding: 25px 20px;
+            .data-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
-            .login-header h2 {
+            .data-header h2 {
                 font-size: 20px;
             }
             
-            .header-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .delete-btn, .print-btn {
+                padding: 6px 10px;
+                font-size: 12px;
             }
             
             .operation-status {
                 top: 10px;
                 right: 10px;
                 left: 10px;
-            }
-            
-            /* 表格在小屏幕上显示更紧凑 */
-            .data-table th:nth-child(1),
-            .data-table td:nth-child(1) {
-                width: 40px;
-            }
-            
-            .data-table th:nth-child(2),
-            .data-table td:nth-child(2) {
-                width: 60px;
-            }
-            
-            .data-table th:nth-child(3),
-            .data-table td:nth-child(3) {
-                width: 80px;
-            }
-            
-            .data-table th:nth-child(4),
-            .data-table td:nth-child(4) {
-                width: 100px;
-            }
-            
-            .data-table th:nth-child(5),
-            .data-table td:nth-child(5) {
-                width: 60px;
-            }
-            
-            .data-table th:nth-child(6),
-            .data-table td:nth-child(6) {
-                width: 80px;
-            }
-            
-            .data-table th:nth-child(7),
-            .data-table td:nth-child(7) {
-                width: 80px;
-            }
-            
-            .data-table th:nth-child(8),
-            .data-table td:nth-child(8) {
-                width: 100px;
-            }
-            
-            .data-table th:nth-child(9),
-            .data-table td:nth-child(9) {
-                width: 80px;
+                font-size: 14px;
+                padding: 12px 20px;
             }
         }
         
@@ -545,11 +537,11 @@
             }
             
             .login-form {
-                padding: 20px 15px;
+                padding: 25px 20px;
             }
             
             .login-header h2 {
-                font-size: 18px;
+                font-size: 20px;
             }
             
             .login-header p {
@@ -580,6 +572,17 @@
                 height: 60px;
                 font-size: 11px;
             }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .delete-btn, .print-btn {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
         }
         
         /* 针对微信浏览器优化 */
@@ -587,12 +590,12 @@
             .data-table th, 
             .data-table td {
                 padding: 6px 8px;
-                font-size: 0.8rem;
+                font-size: 12px;
             }
             
             .delete-btn, .print-btn {
-                padding: 4px 8px;
-                font-size: 11px;
+                padding: 4px 6px;
+                font-size: 10px;
             }
         }
     </style>
@@ -633,7 +636,9 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="submit-btn">登录系统</button>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-sign-in-alt"></i> 登录系统
+                    </button>
                 </form>
                 
                 <div id="loginMessage" class="message"></div>
@@ -653,13 +658,21 @@
         
         <!-- 数据管理界面 -->
         <div id="dataSection">
-            <button id="logoutBtn" class="logout-btn">退出登录</button>
-            <h2>登记信息管理</h2>
+            <div class="data-header">
+                <h2>登记信息管理</h2>
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+            </div>
             
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="搜索姓名、电话或小区...">
-                <button id="searchBtn">搜索</button>
-                <button id="resetBtn">重置</button>
+                <button id="searchBtn">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+                <button id="resetBtn">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
             </div>
             
             <div class="table-container">
@@ -836,12 +849,14 @@
                                 <td>${record.damage_part || ''}</td>
                                 <td>${formatDate(record.created_at) || ''}</td>
                                 <td>
-                                    <button class="delete-btn" data-id="${record.id}" data-name="${record.community}">
-                                        <i class="fas fa-trash"></i> 删除
-                                    </button>
-                                    <button class="print-btn" data-id="${record.id}">
-                                        <i class="fas fa-print"></i> 打印
-                                    </button>
+                                    <div class="action-buttons">
+                                        <button class="delete-btn" data-id="${record.id}" data-name="${record.community}">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </button>
+                                        <button class="print-btn" data-id="${record.id}">
+                                            <i class="fas fa-print"></i> 打印
+                                        </button>
+                                    </div>
                                 </td>
                             `;
                             dataBody.appendChild(row);
